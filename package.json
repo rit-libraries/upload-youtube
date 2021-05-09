@@ -1,0 +1,31 @@
+{
+  "name": "upload-youtube",
+  "version": "1.0.3",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rit-libraries/upload-youtube.git"
+  },
+  "keywords": [],
+  "author": "Tri H.Nguyen <tringuyencse@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rit-libraries/upload-youtube/issues"
+  },
+  "homepage": "https://github.com/rit-libraries/upload-youtube#readme",
+  "devDependencies": {
+    "delay": "^5.0.0",
+    "puppeteer-extra-plugin-anonymize-ua": "^2.2.17",
+    "puppeteer-extra-plugin-stealth": "^2.7.8"
+  },
+  "dependencies": {
+    "fs-extra": "^10.0.0",
+    "puppeteer": "^9.1.1",
+    "puppeteer-extra": "^3.1.18",
+    "readline-sync": "^1.4.10"
+  }
+}
