@@ -57,19 +57,19 @@ module.exports.loginByParams = async function (email, password) {
     await fsExtra.removeSync(__dirname + "/browser")
 };
 
-module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, imagePath, {
+module.exports.uploadVideoToYoutube = async function (channel, cookiesPath, videoPath, imagePath, {
     title = "Example Title",
     description = "Example Description",
     keywords = ["keywords1", "keywords2"],
     playlist = "Playlist Name",
 }) {
     // verify cookiesPath
-    if (!cookiesPath || !(await fs.existsSync(cookiesPath))) {
+    if (!cookiesPath || !(fs.existsSync(cookiesPath))) {
         throw 'Please input your cookies';
     }
 
     // verify video
-    if (!videoPath || !(await fs.existsSync(videoPath))) {
+    if (!videoPath || !(fs.existsSync(videoPath))) {
         throw 'Please input your video';
     }
 
@@ -91,9 +91,9 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
 
     let videoId = null
     try {
-        console.log("+ Go to `https://studio.youtube.com`")
-        await mainPage.goto('https://studio.youtube.com');
-        await mainPage.waitForSelector('a[test-id="upload-icon-url"]');
+        console.log("+ Go to `https://studio.youtube.com/channel/" + channel + "?approve_browser_access=true`")
+        await mainPage.goto('https://studio.youtube.com/channel/' + channel + '?approve_browser_access=true');
+        await mainPage.waitForSelector('a[test-id="upload-icon-url"]', {timeout: 10000});
 
         // upload file
         const uploadVideoButton = await mainPage.$('a[test-id="upload-icon-url"]');
@@ -107,9 +107,9 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
         await delay(5000)
 
         // waiting for title
-        let inputTitle = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[1]/ytcp-mention-textbox/ytcp-form-input-container/div[1]/div[2]/ytcp-mention-input/div');
+        let inputTitle = await mainPage.$$('#textbox');
         while (inputTitle['length'] === 0) {
-            inputTitle = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-basics/div[1]/ytcp-mention-textbox/ytcp-form-input-container/div[1]/div[2]/ytcp-mention-input/div');
+            inputTitle = await mainPage.$$('#textbox');
             await delay(1000);
         }
 
@@ -131,7 +131,7 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
 
         // upload image
         console.log("+ Upload image")
-        if (imagePath && await fs.existsSync(imagePath)) {
+        if (imagePath && fs.existsSync(imagePath)) {
             const inputImage = await mainPage.$('#file-loader');
             await inputImage.uploadFile(imagePath);
             await delay(1000 * 10);
@@ -204,7 +204,7 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
         console.log("+ Add keywords")
         if (keywords) {
             try {
-                let buttons = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[2]/ytcp-form-input-container/div[1]/div[2]');
+                let buttons = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[3]/ytcp-form-input-container/div[1]/div[2]');
                 await buttons[0].click();
                 await delay(5000);
 
@@ -235,14 +235,13 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
         console.log("+ Wait for processing video...")
         let doneTextElement = await mainPage.$('#dialog > div > ytcp-animatable.button-area.metadata-fade-in-section.style-scope.ytcp-uploads-dialog > div > div.left-button-area.style-scope.ytcp-uploads-dialog > ytcp-video-upload-progress > span');
         let doneText = '';
-        while (!(doneText.indexOf('Đã kiểm tra xong') !== -1 || doneText.indexOf('Checks complete') !== -1)) {
+        while (!(doneText.indexOf('Đã kiểm tra xong') !== -1 || doneText.indexOf('Upload complete') !== -1 || doneText.toLowerCase().indexOf('processing') !== -1)) {
             doneTextElement = await mainPage.$('#dialog > div > ytcp-animatable.button-area.metadata-fade-in-section.style-scope.ytcp-uploads-dialog > div > div.left-button-area.style-scope.ytcp-uploads-dialog > ytcp-video-upload-progress > span');
             if (doneTextElement) {
                 doneText = await mainPage.evaluate(el => el.innerText, doneTextElement);
             }
-            await delay(5000);
+            await delay(120000);
         }
-
         await mainPage.click('#done-button');
         await delay(60000);
 
@@ -251,7 +250,7 @@ module.exports.uploadVideoToYoutube = async function (cookiesPath, videoPath, im
     }
     await mainPage.close();
     await browser.close();
-    await fsExtra.removeSync(rootDIR)
+    fsExtra.removeSync(rootDIR)
     return videoId;
 };
 
