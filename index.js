@@ -204,7 +204,7 @@ module.exports.uploadVideoToYoutube = async function (channel, cookiesPath, vide
         console.log("+ Add keywords")
         if (keywords) {
             try {
-                let buttons = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[3]/ytcp-form-input-container/div[1]/div[2]');
+                let buttons = await mainPage.$x('/html/body/ytcp-uploads-dialog/tp-yt-paper-dialog/div/ytcp-animatable[1]/ytcp-video-metadata-editor/div/ytcp-video-metadata-editor-advanced/div[3]/ytcp-form-input-container/div[1]/div');
                 await buttons[0].click();
                 await delay(5000);
 
